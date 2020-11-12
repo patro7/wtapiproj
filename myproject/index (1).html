@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <script type="text/javascript">
+        window.onload = function () {
+
+            $.ajax({
+                url: "http://localhost/myproject/api/post/read.php", success: function (result) {
+                    // $("#div1").html(result);
+
+                    var deceaseObj = {};
+                    var severityObj = {};
+                    result.forEach(element => {
+                    //result[2].data.forEach(element => {
+                        $.unique(element.member.split(",")).forEach(memberText => {
+                            if (!deceaseObj[memberText]) {
+                                deceaseObj[memberText] = 0;
+                            }
+                            deceaseObj[memberText]++;
+                        });
+
+                        if (!severityObj[element.severe]) {
+                            severityObj[element.severe] = 0;
+                        }
+                        severityObj[element.severe]++;
+                    });
+
+                    var pieDataPointsArr = Object.keys(deceaseObj).map((memberText) => {
+                        return { y: deceaseObj[memberText], name: memberText }
+                    })
+
+                    var barDataPointsArr = Object.keys(severityObj).map((severityText) => {
+                        return { y: severityObj[severityText], label: severityText }
+                    })
+
+                    var options = {
+                        exportEnabled: true,
+                        animationEnabled: true,
+                        title: {
+                            text: result[2].name
+                        },
+                        legend: {
+                            horizontalAlign: "right",
+                            verticalAlign: "center"
+                        },
+                        data: [{
+                            type: "pie",
+                            showInLegend: true,
+                            toolTipContent: "<b>{name}</b>: {y} person(s) affected (#percent%)",
+                            indexLabel: "{name}",
+                            legendText: "{name} (#percent%)",
+                            indexLabelPlacement: "inside",
+                            dataPoints: pieDataPointsArr
+                        }]
+                    };
+                    $("#chartContainer").CanvasJSChart(options);
+
+                    var options1 = {
+                        title: {
+                            text: "Column Chart in jQuery CanvasJS"
+                        },
+                        data: [
+                            {
+                                // Change type to "doughnut", "line", "splineArea", etc.
+                                type: "column",
+                                dataPoints: barDataPointsArr
+                            }
+                        ]
+                    };
+
+                    $("#barChartContainer").CanvasJSChart(options1);
+                }
+            });
+
+        }
+    </script>
+</head>
+
+<body>
+    <div style="width: 95%; height: 370px; margin: 2%">
+        <div id="chartContainer" style="height: 370px; width: 40%; float: left; margin: 0 5%;"></div>
+        <div id="barChartContainer" style="height: 370px; width: 40%; float: right; margin: 0 5%;"></div>
+    </div>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
+</body>
+
+</html>
